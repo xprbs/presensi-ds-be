@@ -3,87 +3,111 @@
 namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
+use App\Models\Absence;
 use App\Models\Presence;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\PresensiValidation;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-class PresenceOutController extends Controller
+class PresenceInController extends Controller
 {
     public function check()
     {
-        $isExists = Presence::where('nipd', Auth::guard('api')->user()->student->nipd)->whereDate('presence_in', today())->where('presence_out', null)->first();
-        if ($isExists) {
-            return response()->json([
-                'status' => 'success',
-                'data' => $isExists
-            ]);
+        $student = Auth::guard('api')->user()->student->nipd;
+        $validatePresensi = PresensiValidation::validatePresensiMasuk($student);
+        if ($validatePresensi === 222) {
+            $statusCode = 222;
+            $msg = "Anda sudah melakukan presensi hari ini";
+        } else if ($validatePresensi === 223) {
+            $statusCode = 223;
+            $absenceType = Absence::where('nipd', $student)->whereDate('absence_date', today())->value('absence_type');
+            $msg = "Anda tercatat sudah melaporkan {$absenceType} untuk hari ini";
+        } else if ($validatePresensi === 224) {
+            $statusCode = 224;
+            $msg = "Anda tercatat tidak mengikuti kelas hari ini tanpa keterangan";
         } else {
-            return response()->json([
-                'status' => 'error',
-                'data' => $isExists
-            ]);
+            $statusCode = 200;
+            $msg = "Anda berhak mengikuti kelas";
         }
+        return response()->json([
+            'status' => 'success',
+            'code' => $statusCode,
+            'message' => $msg
+        ], 200);
     }
 
     public function storeOffline(Request $request)
     {
         DB::beginTransaction();
+        $presence_in = Carbon::now();
         try {
-            $presenceData = Presence::where('nipd', Auth::guard('api')->user()->student->nipd)->whereDate('presence_in', today())->first();
-            $presenceData->presence_out = Carbon::now();
+            $student = Auth::guard('api')->user()->student;
             if ($request->has('override') && $request->query('override') === 'true') {
-                $presenceData->presence_out_note = 'Pulang lebih awal';
+                $deleteAbsence = Absence::where('nipd', $student->nipd)->whereDate('absence_date', today())->delete();
             }
-            $presenceData->save();
+            $validateSchedule = PresensiValidation::scheduleMasukValidator($student->classroom->type);
+            $presence = Presence::create([
+                'nipd' => $student->nipd,
+                'learning_type' => 'offline',
+                'presence_in' => $presence_in,
+                'presence_in_note' => $validateSchedule
+            ]);
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'data' => $presenceData
-            ], 201);
+                'data' => $presence
+            ], 200);
         } catch (\Exception $e) {
-            DB::rollback();
             return response()->json([
                 'status' => 'error',
                 'data' => $e->getMessage()
-            ], 200);
+            ], 422);
         }
     }
 
     public function storeOnline(Request $request)
     {
         DB::beginTransaction();
+        $presence_in = Carbon::now();
         try {
-            $presenceData = Presence::where('nipd', Auth::guard('api')->user()->student->nipd)->whereDate('presence_in', today())->first();
+            $student = Auth::guard('api')->user()->student;
             $faceRecog = $this->faceRecog($request);
             if (!$faceRecog) {
                 throw new \Exception('Verifikasi wajah gagal');
                 return false;
             } else {
-                $presenceData->presence_out = Carbon::now();
                 if ($request->has('override') && $request->query('override') === 'true') {
-                    $presenceData->presence_out_note = 'Pulang lebih awal';
+                    $deleteAbsence = Absence::where('nipd', $student->nipd)->whereDate('absence_date', today())->delete();
                 }
-                $presenceData->save();
+                $validateSchedule = PresensiValidation::scheduleMasukValidator($student->classroom->type);
+                $presence = Presence::create([
+                    'nipd' => $student->nipd,
+                    'learning_type' => 'online',
+                    'presence_in' => $presence_in,
+                    'presence_in_note' => $validateSchedule
+                ]);
                 DB::commit();
                 return response()->json([
                     'status' => 'success',
-                    'data' => $presenceData
-                ], 201);
+                    'data' => $presence
+                ], 200);
             }
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json([
                 'status' => 'error',
-                'data' => $e->getMessage()
+                'message' => $e->getMessage()
             ], 200);
         }
     }
+
+    
 
     public function faceRecog(Request $request)
     {
@@ -107,12 +131,12 @@ class PresenceOutController extends Controller
         ];
         $url = config('app.face_recog_url') . '/verify';
         $response = Http::post($url, $data);
+        $responseData = $response->json();
         if ($response->serverError) {
             Log::error('Verifikasi wajah gagal:');
             throw new \Exception('Verifikasi wajah gagal');
             return false;
         }
-        $responseData = $response->json();
         Log::info('Response Data:', $responseData);
         Storage::delete('public/temp/'.$filename);
         if (!$responseData || $responseData['verified'] === 'False') {

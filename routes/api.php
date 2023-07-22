@@ -3,12 +3,13 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LBSController;
-use App\Http\Controllers\AbsenceController;
+use App\Http\Controllers\API\AbsenceController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\InfoController;
+use App\Http\Controllers\Api\PresenceInController;
 use App\Http\Controllers\Api\PresenceOutController;
 use App\Http\Controllers\Api\StudentDataController;
-use App\Http\Controllers\OfflinePresenceController;
+use App\Http\Controllers\Api\OnlinePresenceController;
 use App\Http\Controllers\Api\HistoryPresenceController;
 
 Route::post('login', [AuthController::class, 'login']);
@@ -20,11 +21,24 @@ Route::middleware('apiAuth')->group(function () {
 
     Route::get('my-presence', [AbsenceController::class, 'store']);
     Route::post('absence', [AbsenceController::class, 'store']);
-
+    
     Route::get('lbs/check', [LBSController::class, 'checkPerimeter']);
-    Route::post('presence/offline/store', [OfflinePresenceController::class, 'store']);
-    Route::post('presence-out', [PresenceOutController::class, 'store']);
-    Route::get('presence-out', [PresenceOutController::class, 'check']);
+
+    Route::prefix('presence-in')->controller(PresenceInController::class)->group(function() {
+        Route::get('check', 'check');
+        Route::post('offline', 'storeOffline');
+        Route::post('online', 'storeOnline');
+    });
+
+    Route::prefix('presence-out')->controller(PresenceOutController::class)->group(function() {
+        Route::get('check', 'check');
+        Route::post('offline', 'storeOffline');
+        Route::post('online', 'storeOnline');
+
+    });
+
+    // Route::post('presence-out', [PresenceOutController::class, 'store']);
+    // Route::get('presence-out', [PresenceOutController::class, 'check']);
 
     Route::get('presence/history', [HistoryPresenceController::class, 'index']);
 
