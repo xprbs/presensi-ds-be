@@ -17,6 +17,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'face_recog_url' => env('FACE_RECOG_URL', null),
 
     /*
     |--------------------------------------------------------------------------
