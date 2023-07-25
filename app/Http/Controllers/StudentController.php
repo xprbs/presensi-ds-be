@@ -21,7 +21,7 @@ class StudentController extends Controller
     public function index()
     {
         $classrooms = Classroom::pluck(\DB::raw("CONCAT(class_name, ' - ', type)"), 'id')->toArray();
-        $students = Student::get();
+        $students = Student::with('classroom')->get()->groupBy('class_id');
         return view('pages.students.index', compact('classrooms', 'students'));
     }
 

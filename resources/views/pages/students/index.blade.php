@@ -23,13 +23,6 @@
 @extends('layouts.default', ['title' => 'Data Siswa', 'cardTitle' => ''])
 
 @section('card-title')
-    <div class="card-header d-flex justify-content-between">
-        <h4 class="card-title">Siswa Terdaftar</h4>
-        <div>
-            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">Tambah
-                Data</button>
-        </div>
-    </div>
 @endsection
 
 @if ($sessionMsg)
@@ -42,142 +35,162 @@
     @endsection
 @endif
 
-@section('content')
-    <x-modal title="Tambah Data Siswa" idModal="addModal" modalType="modal-lg">
-        <form id="studentForm" action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data">
+<x-modal title="Tambah Data Siswa" idModal="addModal" modalType="modal-lg">
+    <form id="studentForm" action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data">
 
-            {{ csrf_field() }}
-            <x-input-field label="NIPD" type="number" name="nipd"></x-input-field>
-            <x-input-field label="Email Siswa" type="email" name="email"></x-input-field>
-            <x-input-field label="Nama Siswa" type="text" name="name"></x-input-field>
-            <x-select-field label="Kelas" name="class_id" :options="$classrooms"></x-select-field>
-            <x-select-field label="Jenis Kelamin" name="gender" :options="$gender"></x-select-field>
-            <div class="row">
-                <div class="col-6">
-                    <x-input-field label="Tempat Lahir" type="text" name="pob"></x-input-field>
-                </div>
-                <div class="col-6">
-                    <x-input-field label="Tanggal Lahir" type="date" name="dob"></x-input-field>
-                </div>
+        {{ csrf_field() }}
+        <x-input-field label="NIPD" type="number" name="nipd"></x-input-field>
+        <x-input-field label="Email Siswa" type="email" name="email"></x-input-field>
+        <x-input-field label="Nama Siswa" type="text" name="name"></x-input-field>
+        <x-select-field label="Kelas" name="class_id" :options="$classrooms"></x-select-field>
+        <x-select-field label="Jenis Kelamin" name="gender" :options="$gender"></x-select-field>
+        <div class="row">
+            <div class="col-6">
+                <x-input-field label="Tempat Lahir" type="text" name="pob"></x-input-field>
             </div>
-            <x-select-field label="Agama" name="religion" :options="$religion"></x-select-field>
-            <x-text-area-field label="Alamat Lengkap" name="address"></x-text-area-field>
-            <x-input-field label="Jenis Tinggal" type="text" name="residence_type"></x-input-field>
-            <x-input-field label="Photo" type="file" name="photo"></x-input-field>
-            <div class="mb-3">
-                <label class="form-label">Preview</label>
-                <img src="https://puprpkpp.riau.go.id/asset/img/default-image.png" id="imgPreview" class="img-fluid">
+            <div class="col-6">
+                <x-input-field label="Tanggal Lahir" type="date" name="dob"></x-input-field>
             </div>
-            <input type="submit" value="Simpan Data" class="btn btn-primary w-100">
-        </form>
-    </x-modal>
-
-    <x-modal title="Detail Siswa" idModal="detailModal" modalType="">
-        <div>
-            <img src="" alt="" id="photoDetail" class="img-fluid">
         </div>
-        <table class="table">
-            <tr>
-                <td>NIPD</td>
-                <td class="font-bold"><span id="nipdDetail"></span></td>
-            </tr>
-            <tr>
-                <td>Email</td>
-                <td class="font-bold"><span id="emailDetail"></span></td>
-            </tr>
-            <tr>
-                <td>Kelas</td>
-                <td class="font-bold text-capitalize"><span id="classDetail"></span></td>
-            </tr>
-            <tr>
-                <td>Nama Lengkap</td>
-                <td class="font-bold text-capitalize"><span id="nameDetail"></span></td>
-            </tr>
-            <tr>
-                <td>Jenis Kelamin</td>
-                <td class="font-bold text-capitalize"><span id="genderDetail"></span></td>
-            </tr>
-            <tr>
-                <td>Tempat, Tanggal Lahir</td>
-                <td class="font-bold text-capitalize"><span id="dobDetail"></span></td>
-            </tr>
-            <tr>
-                <td>Agama</td>
-                <td class="font-bold text-capitalize"><span id="religionDetail"></span></td>
-            </tr>
-            <tr>
-                <td>Alamat Lengkap</td>
-                <td class="font-bold text-capitalize"><span id="addressDetail"></span></td>
-            </tr>
-            <tr>
-                <td>Jenis Tinggal</td>
-                <td class="font-bold text-capitalize"><span id="residence_typeDetail"></span></td>
-            </tr>
-        </table>
-    </x-modal>
+        <x-select-field label="Agama" name="religion" :options="$religion"></x-select-field>
+        <x-text-area-field label="Alamat Lengkap" name="address"></x-text-area-field>
+        <x-input-field label="Jenis Tinggal" type="text" name="residence_type"></x-input-field>
+        <x-input-field label="Photo" type="file" name="photo"></x-input-field>
+        <div class="mb-3">
+            <label class="form-label">Preview</label>
+            <img src="https://puprpkpp.riau.go.id/asset/img/default-image.png" id="imgPreview" class="img-fluid">
+        </div>
+        <input type="submit" value="Simpan Data" class="btn btn-primary w-100">
+    </form>
+</x-modal>
 
-    <x-modal title="Edit Data Siswa" idModal="editModal" modalType="modal-lg">
-        <form id="editStudentForm" action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data">
-
-            {{ csrf_field() }}
-            @method('PATCH')
-            <x-input-field label="NIPD" type="number" name="nipdEdit"></x-input-field>
-            <input type="hidden" id="nipdDefault">
-            <x-input-field label="Email Siswa" type="email" name="emailEdit"></x-input-field>
-            <x-input-field label="Nama Siswa" type="text" name="nameEdit"></x-input-field>
-            <x-select-field label="Kelas" name="class_idEdit" :options="$classrooms"></x-select-field>
-            <x-select-field label="Jenis Kelamin" name="genderEdit" :options="$gender"></x-select-field>
-            <div class="row">
-                <div class="col-6">
-                    <x-input-field label="Tempat Lahir" type="text" name="pobEdit"></x-input-field>
-                </div>
-                <div class="col-6">
-                    <x-input-field label="Tanggal Lahir" type="date" name="dobEdit"></x-input-field>
-                </div>
-            </div>
-            <x-select-field label="Agama" name="religionEdit" :options="$religion"></x-select-field>
-            <x-text-area-field label="Alamat Lengkap" name="addressEdit"></x-text-area-field>
-            <x-input-field label="Jenis Tinggal" type="text" name="residence_typeEdit"></x-input-field>
-            <x-input-field label="Photo" type="file" name="photoEdit"></x-input-field>
-            <div class="mb-3 text-center">
-                <label class="form-label">Preview</label>
-                <img src="https://puprpkpp.riau.go.id/asset/img/default-image.png" id="imgPreviewEdit" class="img-fluid">
-                <button class="text-danger btn d-none" id="cancelChangeImage">Klik Untuk Batal Mengganti Foto</button>
-            </div>
-
-            <input type="submit" value="Simpan Data" class="btn btn-primary w-100">
-        </form>
-    </x-modal>
-
-    <table class="table" id="table1">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>NIPD</th>
-                <th>Nama Siswa</th>
-                <th>Kelas</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($students as $index => $student)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $student->nipd }}</td>
-                    <td>{{ $student->name }}</td>
-                    <td>{{ $student->classroom->class_name }} - {{ $student->classroom->type }}</td>
-                    <td>
-                        <button data-id="{{ $student->nipd }}" class="detailButton btn btn-sm btn-outline-primary"
-                            data-bs-toggle="modal" data-bs-target="#detailModal">Detail</button>
-                        <button data-id="{{ $student->nipd }}" class="editButton btn btn-sm btn-outline-success"
-                            data-bs-toggle="modal" data-bs-target="#editModal">Edit</button>
-                        <button data-id="{{ $student->nipd }}"
-                            class="deleteButton btn btn-sm btn-outline-danger">Delete</button>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
+<x-modal title="Detail Siswa" idModal="detailModal" modalType="">
+    <div>
+        <img src="" alt="" id="photoDetail" class="img-fluid">
+    </div>
+    <table class="table">
+        <tr>
+            <td>NIPD</td>
+            <td class="font-bold"><span id="nipdDetail"></span></td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td class="font-bold"><span id="emailDetail"></span></td>
+        </tr>
+        <tr>
+            <td>Kelas</td>
+            <td class="font-bold text-capitalize"><span id="classDetail"></span></td>
+        </tr>
+        <tr>
+            <td>Nama Lengkap</td>
+            <td class="font-bold text-capitalize"><span id="nameDetail"></span></td>
+        </tr>
+        <tr>
+            <td>Jenis Kelamin</td>
+            <td class="font-bold text-capitalize"><span id="genderDetail"></span></td>
+        </tr>
+        <tr>
+            <td>Tempat, Tanggal Lahir</td>
+            <td class="font-bold text-capitalize"><span id="dobDetail"></span></td>
+        </tr>
+        <tr>
+            <td>Agama</td>
+            <td class="font-bold text-capitalize"><span id="religionDetail"></span></td>
+        </tr>
+        <tr>
+            <td>Alamat Lengkap</td>
+            <td class="font-bold text-capitalize"><span id="addressDetail"></span></td>
+        </tr>
+        <tr>
+            <td>Jenis Tinggal</td>
+            <td class="font-bold text-capitalize"><span id="residence_typeDetail"></span></td>
+        </tr>
     </table>
+</x-modal>
+
+<x-modal title="Edit Data Siswa" idModal="editModal" modalType="modal-lg">
+    <form id="editStudentForm" action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data">
+
+        {{ csrf_field() }}
+        @method('PATCH')
+        <x-input-field label="NIPD" type="number" name="nipdEdit"></x-input-field>
+        <input type="hidden" id="nipdDefault">
+        <x-input-field label="Email Siswa" type="email" name="emailEdit"></x-input-field>
+        <x-input-field label="Nama Siswa" type="text" name="nameEdit"></x-input-field>
+        <x-select-field label="Kelas" name="class_idEdit" :options="$classrooms"></x-select-field>
+        <x-select-field label="Jenis Kelamin" name="genderEdit" :options="$gender"></x-select-field>
+        <div class="row">
+            <div class="col-6">
+                <x-input-field label="Tempat Lahir" type="text" name="pobEdit"></x-input-field>
+            </div>
+            <div class="col-6">
+                <x-input-field label="Tanggal Lahir" type="date" name="dobEdit"></x-input-field>
+            </div>
+        </div>
+        <x-select-field label="Agama" name="religionEdit" :options="$religion"></x-select-field>
+        <x-text-area-field label="Alamat Lengkap" name="addressEdit"></x-text-area-field>
+        <x-input-field label="Jenis Tinggal" type="text" name="residence_typeEdit"></x-input-field>
+        <x-input-field label="Photo" type="file" name="photoEdit"></x-input-field>
+        <div class="mb-3 text-center">
+            <label class="form-label">Preview</label>
+            <img src="https://puprpkpp.riau.go.id/asset/img/default-image.png" id="imgPreviewEdit" class="img-fluid">
+            <button class="text-danger btn d-none" id="cancelChangeImage">Klik Untuk Batal Mengganti Foto</button>
+        </div>
+
+        <input type="submit" value="Simpan Data" class="btn btn-primary w-100">
+    </form>
+</x-modal>
+
+@section('custom')
+    <div class="row">
+        @foreach ($students as $class_id => $group)
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <h4 class="card-title text-capitalize">Siswa {{ $group->first()->classroom->class_name }}
+                            {{ $group->first()->classroom->type }} Terdaftar</h4>
+                        <div>
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#addModal">Tambah
+                                Data</button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="display table" id="">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>NIPD</th>
+                                    <th>Nama Siswa</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($group as $index => $student)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $student->nipd }}</td>
+                                        <td>{{ $student->name }}</td>
+                                        <td>
+                                            <button data-id="{{ $student->nipd }}"
+                                                class="detailButton btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                                data-bs-target="#detailModal">Detail</button>
+                                            <button data-id="{{ $student->nipd }}"
+                                                class="editButton btn btn-sm btn-outline-success" data-bs-toggle="modal"
+                                                data-bs-target="#editModal">Edit</button>
+                                            <button data-id="{{ $student->nipd }}"
+                                                class="deleteButton btn btn-sm btn-outline-danger">Delete</button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
 @endsection
 
 @pushOnce('custom-script')
@@ -186,10 +199,14 @@
     <script src="{{ asset('assets/js/pages/datatables.js') }}"></script>
     <script src="{{ asset('assets/extensions/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('assets/js/components/delete-dialog.js') }}"></script>
+
     <script>
         $(document).ready(function() {
             let csrf = "{{ csrf_token() }}";
             let imageUrlEdit;
+            new DataTable('table.display');
+
+
             $("#photo").on('change', function() {
                 const file = this.files[0];
                 if (file) {

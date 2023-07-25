@@ -19,12 +19,20 @@
 
             @include('includes.heading')
             <section class="section">
-                <div class="card">
-                    @yield('card-title')
-                    <div class="card-body">
-                        @yield('content')
+                {{-- Konten default menggunakan div.card --}}
+                @hasSection('content')
+                    <div class="card">
+                        @yield('card-title')
+                        <div class="card-body">
+                            @yield('content')
+                        </div>
                     </div>
-                </div>
+                @else
+                    @yield('custom')
+                @endif
+
+                {{-- Konten opsional yang dapat digantikan jika ada konten dari view yang menggunakan template ini --}}
+
             </section>
         </div>
         @include('includes.footer')
