@@ -35,6 +35,13 @@
                     <td>{{ $status }}</td>
                 </tr>
             @endforeach
+            @foreach ($memew as $index => $item)
+                <tr>
+                    <td colspan="2" style="text-transform: capitalize; font-weight: bold">Total {{ $item['title'] }}
+                    </td>
+                    <td colspan="2" style="text-transform: capitalize; font-weight: bold">{{ $item['total'] }}</td>
+                </tr>
+            @endforeach
         </tbody>
     </table>
 </body>

@@ -9,16 +9,20 @@ use Illuminate\Contracts\View\View;
 class PresensiExport implements FromView
 {
     public $data;
+    public $category;
 
-    public function __construct($data)
+    public function __construct($data, $category)
     {
         $this->data = $data;
+        $this->category = $category;
     }
 
     public function view(): View
     {
+        // dd($this->category);
         return view('exports.presensi', [
-            'datas' => $this->data
+            'datas' => $this->data,
+            'memew' => $this->category
         ]);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Absence;
 use App\Models\Student;
+use App\Models\Presence;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -30,10 +32,24 @@ class StudentDataController extends Controller
     {
         $classroom = Auth::guard('api')->user()->teacher->class_id;
         $nipd = $request->query('nipd');
+        
+        $totalPresence = Presence::where('nipd', $nipd)->semester()->count();
+        $totalAbsencesDueToPermission = Absence::where('nipd', $nipd)->semester()->count();
+        $totalAbsencesDueToSickness = Absence::where('nipd', $nipd)->sickness()->semester()->count();
+        $totalAbsencesWithoutNote = Absence::where('nipd', $nipd)->withoutNotes()->semester()->count();
+
+        $rekapData = [
+            'total_presences' => $totalPresence,
+            'total_sickness' => $totalAbsencesDueToSickness,
+            'total_due_permissions' => $totalAbsencesDueToPermission,
+            'total_without_notes' => $totalAbsencesWithoutNote,
+        ];
+
         $data = Student::with(['user', 'classroom'])->where('class_id', $classroom)->where('nipd', $nipd)->first();
         return response()->json([
             'status' => 'success',
-            'data' => new StudentListResource($data)
+            'data' => new StudentListResource($data),
+            'recap' => $rekapData
         ], 200);
     }
 }

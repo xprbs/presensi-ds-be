@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Student extends Model
 {
@@ -57,16 +58,47 @@ class Student extends Model
         return $this->hasOne(Absence::class, 'nipd', 'nipd')->whereNotNull('absence_date')->whereDate('absence_date', today());
     }
 
+    public function getPresencesTodayCountAttribute()
+    {
+        return $this->presencesToday()->count();
+    }
+
+    public function getAbsencesTodayCountAttribute()
+    {
+        return $this->absencesToday()->count();
+    }
+
+    // Eloquent Accessor untuk menghitung jumlah izin
+    public function getIzinTodayCountAttribute()
+    {
+        return $this->absencesToday()->where('absence_type', 'izin')->count();
+    }
+
+    // Eloquent Accessor untuk menghitung jumlah sakit
+    public function getSakitTodayCountAttribute()
+    {
+        return $this->absencesToday()->where('absence_type', 'sakit')->count();
+    }
+
+    // Eloquent Accessor untuk menghitung jumlah alfa
+    public function getAlfaTodayCountAttribute()
+    {
+        return $this->absencesToday()->where('absence_type', 'alfa')->count();
+    }
+
     public function presencesOnDate()
-{
-    return $this->hasOne(Presence::class, 'nipd', 'nipd')->whereNotNull('presence_in');
-}
+    {
+        return $this->hasOne(Presence::class, 'nipd', 'nipd')->whereNotNull('presence_in');
+    }
 
-public function absencesOnDate()
-{
-    return $this->hasOne(Absence::class, 'nipd', 'nipd')->whereNotNull('absence_date');
-}
+    public function absencesOnDate()
+    {
+        return $this->hasOne(Absence::class, 'nipd', 'nipd')->whereNotNull('absence_date');
+    }
 
-
-
+    public function presenceSemester()
+    {
+        $sixMonthsAgo = Carbon::now()->subMonths(6)->startOfDay();
+        return $this->presences()->whereBetween('presence_in', [$sixMonthsAgo, Carbon::now()]);
+    }
 }

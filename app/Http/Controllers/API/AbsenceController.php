@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use Auth;
-
 use Carbon\Carbon;
-use App\Models\User;
 use App\Models\Absence;
-
-use App\Models\Student;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class AbsenceController extends Controller
 {
@@ -22,7 +19,9 @@ class AbsenceController extends Controller
             $nipd = Auth::guard('api')->user()->student->nipd;
             $absence_type = $request->absence_type;
 
-            $isExists = Absence::where('nipd', $nipd)->where('absence_date', $request->absence_date)->first();
+            $absence_date = Carbon::parse($request->absence_date)->toDateTimeString();
+
+            $isExists = Absence::where('nipd', $nipd)->where('absence_date', $absence_date)->first();
             if ($isExists) {
                 throw new \Exception("Anda telah mengirimkan laporan pada tanggal yang sama", 422);
             }
@@ -35,7 +34,7 @@ class AbsenceController extends Controller
                 'nipd' => $nipd,
                 'absence_type' => $request->absence_type,
                 'absence_note' => $request->absence_note,
-                'absence_date' => $request->absence_date,
+                'absence_date' => $absence_date,
                 'attachment' => $filename
             ]);
             DB::commit();

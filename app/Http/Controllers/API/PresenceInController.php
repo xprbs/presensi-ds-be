@@ -132,7 +132,7 @@ class PresenceInController extends Controller
         $url = config('app.face_recog_url') . '/verify';
         $response = Http::post($url, $data);
         $responseData = $response->json();
-        if ($response->serverError) {
+        if ($response->serverError()) {
             Log::error('Verifikasi wajah gagal:');
             throw new \Exception('Verifikasi wajah gagal');
             return false;

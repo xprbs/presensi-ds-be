@@ -107,21 +107,22 @@ class PresenceOutController extends Controller
         ];
         $url = config('app.face_recog_url') . '/verify';
         $response = Http::post($url, $data);
-        if ($response->serverError) {
+        if (!$response->ok()) {
             Log::error('Verifikasi wajah gagal:');
             throw new \Exception('Verifikasi wajah gagal');
             return false;
-        }
-        $responseData = $response->json();
-        Log::info('Response Data:', $responseData);
-        Storage::delete('public/temp/'.$filename);
-        if (!$responseData || $responseData['verified'] === 'False') {
-            Log::error('Verifikasi wajah gagal:', $responseData);
-            throw new \Exception('Verifikasi wajah gagal');
-            return false;
         } else {
-            $verified = true;
-            return true;
+            $responseData = $response->json();
+            Log::info('Response Data:', $responseData);
+            Storage::delete('public/temp/'.$filename);
+            if (!$responseData || $responseData['verified'] === 'False') {
+                Log::error('Verifikasi wajah gagal:', $responseData);
+                throw new \Exception('Verifikasi wajah gagal');
+                return false;
+            } else {
+                $verified = true;
+                return true;
+            }
         }
     }
 }

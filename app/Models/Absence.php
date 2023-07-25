@@ -53,9 +53,14 @@ class Absence extends Model
         return $query->where('absence_type', 'alfa');
     }
 
+    public function scopeToday($query)
+    {
+        return $query->whereDate('absence_date', today());
+    }
+
     public function scopeSemester($query)
     {
         $sixMonthsAgo = Carbon::now()->subMonths(6)->startOfDay();
-        return $query->where('absence_date', '>=', $sixMonthsAgo);
+        return $query->whereBetween('absence_date', [$sixMonthsAgo, Carbon::now()]);
     }
 }

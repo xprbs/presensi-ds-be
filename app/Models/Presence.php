@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,9 +31,21 @@ class Presence extends Model
             $model->{$model->getKeyName()} = (string) Str::uuid();
         });
     }
-
+    
     public function student()
     {
         return $this->belongsTo(Student::class, 'nipd', 'nipd');
+    }
+
+    public function scopeToday($query)
+    {
+        return $query->whereDate('presence_in', today());
+    }
+
+
+    public function scopeSemester($query)
+    {
+        $sixMonthsAgo = Carbon::now()->subMonths(6)->startOfDay();
+        return $query->whereBetween('presence_in', [$sixMonthsAgo, Carbon::now()]);
     }
 }

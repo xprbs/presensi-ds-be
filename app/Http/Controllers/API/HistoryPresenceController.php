@@ -63,19 +63,45 @@ class HistoryPresenceController extends Controller
             ->where('class_id', Auth::guard('api')->user()->teacher->class_id)
             ->orderBy('name', 'asc')
             ->get();
+
+        $category = [
+            [
+                'title' => 'Semua',
+                'total' => $rekapPresensi->count(),
+            ],
+            [
+                'title' => 'hadir',
+                'total' => $rekapPresensi->sum('presencesTodayCount'),
+            ],
+            [
+                'title' => 'izin',
+                'total' => $rekapPresensi->sum('izinTodayCount'),
+            ],
+            [
+                'title' => 'sakit',
+                'total' => $rekapPresensi->sum('sakitTodayCount'),
+            ],
+            [
+                'title' => 'alfa',
+                'total' => $rekapPresensi->sum('alfaTodayCount'),
+            ],
+        ];
+
         if ($request->has('download') && $request->query('download') === 'true') {
             $classroom = Auth::guard('api')->user()->teacher->classroom->class_name;
             $filename = 'Data-Presensi-Siswa-' . $classroom . '-' . Carbon::now()->toDateString() . '.xlsx';
             $downloadUrl = Storage::url('data-presensi/'.$filename);
-            $export = Excel::store(new PresensiExport($rekapPresensi), 'public/data-presensi/'.$filename);
+            $export = Excel::store(new PresensiExport($rekapPresensi, $category), 'public/data-presensi/'.$filename);
             return response()->json([
                 'status' => 'success',
+                'category' => $category,
                 'data' => HistoryPresenceResource::collection($rekapPresensi),
                 'download' => url($downloadUrl)
             ], 200);
         } else {
             return response()->json([
                 'status' => 'success',
+                'category' => $category,
                 'data' => HistoryPresenceTodayResource::collection($rekapPresensi)
             ], 200);
         }
@@ -110,17 +136,51 @@ class HistoryPresenceController extends Controller
                     'absences.absence_type',
                     'absences.absence_date',
                     'absences.created_at as absence_created_at',
-                    'absences.updated_at as absence_updated_at'
+                    'absences.updated_at as absence_updated_at',
                 )
                 ->where('students.class_id', Auth::guard('api')->user()->teacher->class_id)
                 ->orderBy('students.name', 'asc') // Mengurutkan berdasarkan nama siswa dari A-Z (asc)
                 ->get();
 
-            if ($request->has('download') && $request->query('download') === 'true') {
+                $rekapPresensi->map(function ($student) {
+                    $student->presencesCount = $student->presence_id ? 1 : 0;
+                    $student->absencesCount = $student->absence_id ? 1 : 0;
+                    $student->izinCount = $student->absence_type === 'izin' ? 1 : 0;
+                    $student->sakitCount = $student->absence_type === 'sakit' ? 1 : 0;
+                    $student->alfaCount = $student->absence_type === 'alfa' ? 1 : 0;
+                    $student->belumHadirCount = ($student->presencesCount + $student->absencesCount) === 0 ? 1 : 0;
+                    return $student;
+                });
+
+                $category = [
+                    [
+                        'title' => 'Semua',
+                        'total' => $rekapPresensi->count(),
+                    ],
+                    [
+                        'title' => 'hadir',
+                        'total' => $rekapPresensi->sum('presencesCount'),
+                    ],
+                    [
+                        'title' => 'izin',
+                        'total' => $rekapPresensi->sum('izinCount'),
+                    ],
+                    [
+                        'title' => 'sakit',
+                        'total' => $rekapPresensi->sum('sakitCount'),
+                    ],
+                    [
+                        'title' => 'alfa',
+                        'total' => $rekapPresensi->sum('alfaCount'),
+                    ],
+                ];
+
+        
+                if ($request->has('download') && $request->query('download') === 'true') {
                 $classroom = Auth::guard('api')->user()->teacher->classroom->class_name;
                 $filename = 'Data-Presensi-Siswa-' . $classroom . '-' . $date . '.xlsx';
                 $downloadUrl = Storage::url('data-presensi/'.$filename);
-                $export = Excel::store(new PresensiExport($rekapPresensi), 'public/data-presensi/'.$filename);
+                $export = Excel::store(new PresensiExport($rekapPresensi, $category), 'public/data-presensi/'.$filename);
                 return response()->json([
                     'status' => 'success',
                     'data' => HistoryPresenceResource::collection($rekapPresensi),
@@ -129,6 +189,7 @@ class HistoryPresenceController extends Controller
             } else {
                 return response()->json([
                     'status' => 'success',
+                    'category' => $category,
                     'data' => HistoryPresenceResource::collection($rekapPresensi)
                 ], 200);
             }
@@ -136,5 +197,11 @@ class HistoryPresenceController extends Controller
         } else {
             return $this->today($request);
         }
+    }
+
+    public function semester(Request $request)
+    {
+        $rekapPresensi = Student::with('presenceSemester')->get();
+        return response()->json($rekapPresensi, 200);
     }
 }

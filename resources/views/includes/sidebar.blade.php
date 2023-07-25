@@ -35,7 +35,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item  ">
-                    <a href="index.html" class='sidebar-link'>
+                    <a href="{{ route('presence.index') }}" class='sidebar-link'>
                         <i class="bi bi-file-earmark-fill"></i>
                         <span>Laporan Presensi</span>
                     </a>
