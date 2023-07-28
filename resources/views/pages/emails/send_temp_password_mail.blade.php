@@ -54,8 +54,9 @@
                                             Dewi Sartika, berikut adalah password baru yang bisa anda gunakan untuk
                                             masuk ke aplikasi
                                         </p>
-                                        <a href="#"
-                                            style="text-decoration:none !important; font-weight:500; margin-top:35px; color:#000;font-size:24px;padding:10px 24px;display:inline-block;border-radius:50px;">{{ $temp }}</a>
+                                        <p
+                                            style="text-decoration:none !important; font-weight:500; margin-top:35px; color:#000;font-size:24px;padding:10px 24px;display:inline-block;border-radius:50px;">
+                                            {{ $temp }}</p>
                                     </td>
                                 </tr>
                                 <tr>
