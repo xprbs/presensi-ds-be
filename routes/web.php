@@ -17,6 +17,8 @@ Route::resource('class', ClassroomController::class);
 Route::resource('student', StudentController::class);
 Route::resource('perimeter', PerimeterController::class);
 Route::resource('teacher', TeacherController::class);
-Route::resource('presence', PresenceController::class);
+Route::get('presence', [PresenceController::class, 'index'])->name('presence.index');
+Route::get('presence/get-student/{classroom}', [PresenceController::class, 'getStudent'])->name('presence.getStudent');
+Route::get('presence/student', [PresenceController::class, 'perStudent'])->name('presence.student');
 Route::get('reset-password/{token}', [AuthController::class, 'verifyToken'])->name('reset-password');
 

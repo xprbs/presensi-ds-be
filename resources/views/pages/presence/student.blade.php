@@ -14,16 +14,18 @@
 @section('card-title')
     <div class="card-header d-flex justify-content-between">
         <h4 class="card-title">Laporan Presensi
-            {{ $date !== null ? \Carbon\Carbon::parse($date)->format('d M Y') : 'Hari Ini' }}</h4>
+            {{-- {{ $date !== null ? \Carbon\Carbon::parse($date)->format('d M Y') : 'Hari Ini' }} --}}
+        </h4>
         <div>
-            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">Filter
-                Data</button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                Filter Data
+            </button>
         </div>
     </div>
 @endsection
 
 <x-modal title="Filter Data" idModal="addModal">
-    <form id="formEditRadius" action="{{ route('presence.index') }}" method="GET">
+    <form id="formEditRadius" action="{{ route('presence.student') }}" method="GET">
         <div class="form-group mb-3">
             <label for="classroom" class="form-label">Kelas</label>
             <select name="classroom" id="classroom" class="form-control">
@@ -35,10 +37,23 @@
         </div>
 
         <div class="form-group mb-3">
+            <label for="classroom" class="form-label">Pilih Siswa</label>
+            <select name="student" id="student" class="form-control" required>
+            </select>
+        </div>
+
+        <div class="form-group mb-3">
             <label for="period" class="form-label">Periode</label>
             <select name="period" id="period" class="form-control">
-                <option value="today" selected>Hari Ini</option>
-                <option value="ondate">Berdasarkan Tanggal</option>
+                <option value="semester1">Semester 1</option>
+                <option value="semester2">Semester 2</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <label for="isDownload" class="form-label">Download</label>
+            <select name="isDownload" id="isDownload" class="form-control">
+                <option value="true">Download Excel</option>
+                <option value="false">Tampilkan Saja</option>
             </select>
         </div>
         <div id="datepicker" class="d-none">
@@ -59,8 +74,8 @@
 @endif
 
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
+    <div class="row gy-5">
+        <div class="col-lg-12 mb-12">
             <table class="table" id="table1">
                 <thead>
                     <tr>
@@ -75,37 +90,40 @@
                 <tbody>
                     @foreach ($data as $index => $item)
                         @php
-                            if ($item->presencesWeb) {
-                                $date = $item->presencesWeb->presence_in;
-                                $status = 'Hadir';
+                            if ($item->status == 'hadir') {
                                 $class = 'bg-primary';
-                            } elseif ($item->absencesWeb) {
-                                $date = $item->absencesWeb->absence_in;
-                                $class = 'bg-danger';
-                                $status = $item->absencesWeb->absence_type;
                             } else {
-                                $date = 'Belum Hadir';
-                                $class = 'bg-secondary';
-                                $status = 'Belum Hadir';
+                                $class = 'bg-danger';
                             }
                         @endphp
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ \Carbon\Carbon::parse($date)->format('D, d M Y') }}
+                            <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('D, d M Y') }}
                             </td>
-                            <td>{{ $item->nipd }}</td>
-                            <td>{{ $item->name }}</td>
-                            <td>{{ $item->classroom->class_name }} - {{ $item->classroom->type }}</td>
+                            <td>{{ $studentData->nipd }}</td>
+                            <td>{{ $studentData->name }}</td>
+                            <td>{{ $studentData->classroom->class_name }} - {{ $studentData->classroom->type }}</td>
                             <td>
-                                <span class="badge text-capitalize {{ $class }}">{{ $status }}</span>
+                                <span class="badge text-capitalize {{ $class }}">{{ $item->status }}</span>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+        <div class="col-lg-12 mt-14">
+            <table class="table table-bordered">
+                @foreach ($totals as $index => $item)
+                    <tr>
+                        <th>Total {{ $index }}</th>
+                        <td>{{ $item }}</td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
     </div>
 @endsection
+
 
 @pushOnce('custom-script')
     <script src="{{ asset('assets/extensions/jquery/jquery.min.js') }}"></script>
@@ -115,6 +133,29 @@
     <script src="{{ asset('assets/js/components/delete-dialog.js') }}"></script>
     <script>
         $(document).ready(function() {
+            let token = "{{ csrf_token() }}"
+            $("#classroom").on('change', function(e) {
+                e.preventDefault();
+                let class_id = $(this).find(':selected').val();
+                let url = "{{ route('presence.getStudent', ['classroom' => ':classroom']) }}"
+                url = url.replace(':classroom', class_id)
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    success: function(response) {
+                        $('#student').empty();
+                        response.forEach(value => {
+                            $('#student').append($('<option>', {
+                                value: value.nipd,
+                                text: value.name
+                            }));
+                        });
+                    },
+                    error: function(error) {
+                        console.log(error)
+                    }
+                });
+            })
             $("#period").on("change", function(e) {
                 e.preventDefault();
                 let selectedPeriod = $(this).find(":selected").val();

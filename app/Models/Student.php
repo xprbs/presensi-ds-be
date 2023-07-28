@@ -48,6 +48,16 @@ class Student extends Model
         return $this->hasMany(Absence::class, 'nipd', 'nipd');
     }
 
+    public function presencesWeb()
+    {
+        return $this->hasOne(Presence::class, 'nipd', 'nipd');
+    }
+
+    public function absencesWeb()
+    {
+        return $this->hasOne(Absence::class, 'nipd', 'nipd');
+    }
+
     public function presencesToday()
     {
         return $this->hasOne(Presence::class, 'nipd', 'nipd')->whereNotNull('presence_in')->whereDate('presence_in', today());

@@ -34,10 +34,18 @@
                         <span>Data Siswa</span>
                     </a>
                 </li>
-                <li class="sidebar-item  ">
+
+                <li class="sidebar-title">Setting</li>
+                <li class="sidebar-item {{ Route::is('presence.index*') ? 'active' : '' }}">
                     <a href="{{ route('presence.index') }}" class='sidebar-link'>
                         <i class="bi bi-file-earmark-fill"></i>
-                        <span>Laporan Presensi</span>
+                        <span>Presensi Hari Ini</span>
+                    </a>
+                </li>
+                <li class="sidebar-item {{ Route::is('presence.student*') ? 'active' : '' }}">
+                    <a href="{{ route('presence.student') }}" class='sidebar-link'>
+                        <i class="bi bi-file-earmark-fill"></i>
+                        <span>Presensi Per Siswa</span>
                     </a>
                 </li>
 
