@@ -20,7 +20,13 @@
     <link rel="stylesheet" href="{{ asset('assets/extensions/sweetalert2/sweetalert2.min.css') }}">
 @endPushOnce
 
-@extends('layouts.default', ['title' => 'Data Siswa', 'cardTitle' => ''])
+@extends('layouts.default', [
+    'title' => 'Data Siswa',
+    'cardTitle' => '',
+    'extraButton' => '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+data-bs-target="#addModal">Tambah
+Data</button>',
+])
 
 @section('card-title')
 @endsection
