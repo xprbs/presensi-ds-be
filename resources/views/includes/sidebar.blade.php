@@ -35,7 +35,7 @@
                     </a>
                 </li>
 
-                <li class="sidebar-title">Setting</li>
+                <li class="sidebar-title">Presensi</li>
                 <li class="sidebar-item {{ Route::is('presence.index*') ? 'active' : '' }}">
                     <a href="{{ route('presence.index') }}" class='sidebar-link'>
                         <i class="bi bi-file-earmark-fill"></i>
@@ -59,19 +59,13 @@
                 <li class="sidebar-item {{ Route::is('teacher*') ? 'active' : '' }}">
                     <a href="{{ route('teacher.index') }}" class='sidebar-link'>
                         <i class="bi bi-person-fill"></i>
-                        <span>Akses Admin & Guru</span>
+                        <span>Akses Guru</span>
                     </a>
                 </li>
 
                 <li class="sidebar-title">MISC</li>
                 <li class="sidebar-item  ">
-                    <a href="index.html" class='sidebar-link'>
-                        <i class="bi bi-activity"></i>
-                        <span>Log Aktivitas</span>
-                    </a>
-                </li>
-                <li class="sidebar-item  ">
-                    <a href="index.html" class='sidebar-link'>
+                    <a href="{{ route('logout') }}" class='sidebar-link'>
                         <i class="bi bi-door-closed-fill"></i>
                         <span>Logout</span>
                     </a>
