@@ -2,9 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
+use App\Mail\SendTempPasswordMail;
+use Illuminate\Support\Facades\DB;
+use App\Models\PasswordResetTokens;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\RedirectResponse;
 
 class AuthController extends Controller
 {
