@@ -105,29 +105,4 @@ class AuthController extends Controller
             ], 500);
         }
     }
-
-    public function verifyToken($token)
-    {
-        DB::beginTransaction();
-        try {
-            $isTokenExists = PasswordResetTokens::where('token', $token)->first();
-            $status = true;
-
-            $generatePassword = Str::random(16);
-            $changeUserPassword = User::where('email', $isTokenExists->email)->update([
-                'password' => Hash::make($generatePassword),
-                'isDefault' => true
-            ]);
-
-            Mail::to($isTokenExists->email)->send(new SendTempPasswordMail($generatePassword));
-            $deleteToken = PasswordResetTokens::where('token', $token)->delete();
-            DB::commit();
-            return view('pages.emails.verify_reset_token', compact('status'));
-        } catch (\Exception $e) {
-            $status = false;
-            $msg = $e->getMessage();
-            DB::rollback();
-            return view('pages.emails.verify_reset_token', compact('status', 'msg'));
-        }
-    }
 }
