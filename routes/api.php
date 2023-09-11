@@ -5,12 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LBSController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\InfoController;
-use App\Http\Controllers\Api\AbsenceController;
-use App\Http\Controllers\Api\PresenceInController;
-use App\Http\Controllers\Api\PresenceOutController;
-use App\Http\Controllers\Api\StudentDataController;
-use App\Http\Controllers\Api\OnlinePresenceController;
-use App\Http\Controllers\Api\HistoryPresenceController;
+use App\Http\Controllers\API\AbsenceController;
+use App\Http\Controllers\API\PresenceInController;
+use App\Http\Controllers\API\PresenceOutController;
+use App\Http\Controllers\API\StudentDataController;
+use App\Http\Controllers\API\OnlinePresenceController;
+use App\Http\Controllers\API\HistoryPresenceController;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('reset-password', [AuthController::class, 'requestResetPassword']);
